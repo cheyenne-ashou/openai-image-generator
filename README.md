@@ -37,10 +37,12 @@ foo@bar:~$ python main.py --v edit --prompt "Super hero Iron man" --image_path "
 
 Original Image:
 
-![img_1.png](img_1.png)
+![person](https://github.com/cheyenne-ashou/openai-image-generator/assets/54869764/7ce7c638-4b2c-4e36-bc6f-ca474bc70201)
+
 Generated Image:
 
-![img.png](img.png)
+![image](https://github.com/cheyenne-ashou/openai-image-generator/assets/54869764/3fb9be65-37ce-4016-abd6-f55c33b30e3c)
+
 ## Technology
 1. Azure Cognitive Services - Computer Vision
    - Thumbnail / Smart Cropping API
