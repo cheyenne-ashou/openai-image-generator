@@ -24,8 +24,6 @@ def main() -> None:
     if args.v == "edit":
         edit_images(parser, args, prompt)
     elif args.v == "generate":
-        print("Image generation is not yet supported")
-        return
         api_version = "2024-02-01"
         client = establish_azure_openai_connection(api_version=api_version)
         image_generate.generate_image(client)
