@@ -6,6 +6,14 @@ My goal for this project is to learn more about what AI has to offer.
 To see what this project has to offer, please use it for yourself!
 
 ## Try it out
+
+**Env File**
+Create a .env file at the root of the project and copy and paste the contents of .env-example into the .env file.
+
+For the image edit functionality, you will need to create an Azure Computer Vision instance and make in account through the OpenAI website where you can obtain an api key.
+
+For the image generation functionality, you will need an Azure Open AI Account.
+
 **Clone the repository**
 
 Using the command line, navigate to the folder you would like to keep the project, then clone the repo.
