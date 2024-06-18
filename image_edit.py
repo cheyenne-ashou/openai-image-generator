@@ -9,39 +9,42 @@ from dotenv import load_dotenv
 
 
 def edit_image(client, mode, prompt, image_path):
-    load_dotenv()
-    cs_endpoint = os.getenv('AZURE_COMPUTER_VISION_ENDPOINT')
-    cs_key = os.getenv('AZURE_COMPUTER_VISION_KEY')
+    try:
+        load_dotenv()
+        cs_endpoint = os.getenv('AZURE_COMPUTER_VISION_ENDPOINT')
+        cs_key = os.getenv('AZURE_COMPUTER_VISION_KEY')
 
-    # Obtain target size of the generated image using the original image dimensions
-    size = get_target_image_size(image_path=image_path)
+        # Obtain target size of the generated image using the original image dimensions
+        size = get_target_image_size(image_path=image_path)
 
-    # Generate a thumbnail with smart cropping for a subject-focused image
-    thumbnail = save_smart_thumbnail(endpoint=cs_endpoint,
-                                     key=cs_key,
-                                     image_file=image_path,
-                                     image_size=size
-                                     )
+        # Generate a thumbnail with smart cropping for a subject-focused image
+        thumbnail = save_smart_thumbnail(endpoint=cs_endpoint,
+                                         key=cs_key,
+                                         image_file=image_path,
+                                         image_size=size
+                                         )
 
-    if mode == "foregroundMatting":
-        # Create a masked version of the image to show the focus areas for OpenAI the Image Edit API
-        masked_image = process_image_matte(cs_endpoint, cs_key, thumbnail)
-    else:
-        masked_image = background_foreground(cs_endpoint, cs_key, "backgroundRemoval", thumbnail)
+        if mode == "foregroundMatting":
+            # Create a masked version of the image to show the focus areas for OpenAI the Image Edit API
+            masked_image = process_image_matte(cs_endpoint, cs_key, thumbnail)
+        else:
+            masked_image = background_foreground(cs_endpoint, cs_key, "backgroundRemoval", thumbnail)
 
-    generated_image_size = generate_image_size_literal(size)
+        generated_image_size = generate_image_size_literal(size)
 
-    print('Editing image...')
-    response = client.images.edit(
-        image=open(thumbnail, "rb"),
-        mask=open(masked_image, "rb"),
-        prompt=prompt,
-        n=1,
-        response_format="b64_json",
-        size=generated_image_size
-    )
-    print('Images have been edited')
-    save_generated_images(response)
+        print('Editing image...')
+        response = client.images.edit(
+            image=open(thumbnail, "rb"),
+            mask=open(masked_image, "rb"),
+            prompt=prompt,
+            n=1,
+            response_format="b64_json",
+            size=generated_image_size
+        )
+        print('Images have been edited')
+        save_generated_images(response)
+    except Exception as e:
+        print(e)
 
 
 # Process a grayscale image so that the black areas are semi-transparent
@@ -61,8 +64,8 @@ def save_generated_images(response):
     for data in response.data:
         generated_image_b64_encoding = data.b64_json
         image_data = base64.b64decode(generated_image_b64_encoding)
-        image_dir = os.path.join(os.curdir, 'images', 'generated')
-        image_path = os.path.join(image_dir, f'generated{index}.png')
+        image_dir = os.path.join(os.curdir, 'images', 'edits')
+        image_path = os.path.join(image_dir, f'edit{index}.png')
         # Save the image data to a file
         with open(image_path, 'wb') as image_file:
             image_file.write(image_data)

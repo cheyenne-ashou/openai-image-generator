@@ -8,6 +8,8 @@ from openai import OpenAI
 
 import image_edit
 import image_generate
+import image_variation
+import text_generate
 
 
 def main() -> None:
@@ -18,26 +20,27 @@ def main() -> None:
     initialize_image_directory()
 
     args = parser.parse_args()
-    prompt = args.prompt
 
     # Validate 'edit' version arguments and edit image
     if args.v == "edit":
-        edit_images(parser, args, prompt)
+        edit_images(parser=parser, args=args)
     elif args.v == "generate":
-        api_version = "2024-02-01"
-        client = establish_azure_openai_connection(api_version=api_version)
-        image_generate.generate_image(client)
+        generate_images(parser=parser, args=args)
+    elif args.v == "variant":
+        generate_variant(parser=parser, args=args)
     else:
         return
 
 
-def edit_images(parser, args, prompt: str):
+def edit_images(parser, args):
     if not args.image_path:
         parser.error("--base_image is required when version is 'edit'")
         return
     if not args.mode:
         parser.error("--mode is required when version is 'edit'")
         return
+    if not args.prompt:
+        parser.error("--prompt is required when generating or editing an image")
     if args.mode == "background":
         mode = "backgroundRemoval"
     elif args.mode == "foreground":
@@ -46,11 +49,38 @@ def edit_images(parser, args, prompt: str):
         parser.error("--mode must be 'background' or 'foreground' (without quotations)")
         return
 
+    prompt = args.prompt
     image_path = args.image_path
     client = establish_openai_connection()
     image_edit.edit_image(client=client, mode=mode, prompt=prompt, image_path=image_path)
 
     save_original_image(image_path)
+
+
+def generate_variant(parser, args):
+    if not args.image_path:
+        parser.error("--image_path is required when creating an image variant")
+        return
+    image_path = args.image_path
+    client = establish_openai_connection()
+    image_variation.create_variation(client=client, image_path=image_path)
+    save_original_image(image_path)
+
+
+def generate_images(parser, args):
+    if not args.prompt:
+        parser.error("--prompt is required when generating or editing an image")
+
+    prompt = args.prompt
+    api_version = "2024-02-01"
+    client = establish_azure_openai_connection(api_version=api_version)
+    image_generate.generate_image(client=client, prompt=prompt)
+
+
+# def generate_story(prompt: str):
+#     api_version = "2024-02-01"
+#     client = establish_azure_openai_connection(api_version=api_version)
+#     text_generate.generate_story(client=client, prompt=prompt)
 
 
 def initialize_image_directory():
@@ -62,9 +92,9 @@ def initialize_image_directory():
 
 def get_parser():
     parser = argparse.ArgumentParser(description="Azure OpenAI DALL-E Image API")
-    parser.add_argument("--v", type=str, required=True, choices=["generate", "edit"],
-                        help="API version: 'generate' or 'edit'")
-    parser.add_argument("--prompt", type=str, required=True, help="Prompt for DALL-E to generate or edit the image")
+    parser.add_argument("--v", type=str, required=True, choices=["generate", "edit", "variant"],
+                        help="API version: 'generate', 'edit', or 'variant'")
+    parser.add_argument("--prompt", type=str, required=False, help="Prompt for DALL-E to generate or edit the image")
     parser.add_argument("--image_path", type=str, required=False, help="Path to the base image file")
     parser.add_argument("--mode",
                         type=str,
@@ -75,7 +105,7 @@ def get_parser():
 
 
 def save_original_image(image_path):
-    print(f"Saving original image...\n")
+    print("Saving original image...\n")
     with Image.open(image_path) as img:
         # Define the new file path
         new_path = os.path.join(os.curdir, 'images', 'original.png')
@@ -88,7 +118,9 @@ def establish_azure_openai_connection(api_version: str) -> AzureOpenAI:
     load_dotenv()
     api_key = os.getenv("AZURE_OPENAI_API_KEY")
     azure_endpoint = os.getenv('AZURE_OPENAI_ENDPOINT')
-    client = AzureOpenAI(api_version=api_version, api_key=api_key, azure_endpoint=azure_endpoint)
+    client = AzureOpenAI(api_version=api_version,
+                         api_key=api_key,
+                         azure_endpoint=azure_endpoint)
     return client
 
 

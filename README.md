@@ -20,6 +20,8 @@ foo@bar:~$ git clone https://github.com/cheyenne-ashou/openai-phishing-detection
 foo@bar:~$ pip install openai
 foo@bar:~$ pip install python-dotenv
 foo@bar:~$ pip install opencv-python
+foo@bar:~$ pip install requests
+foo@bar:~$ pip install pillow 
 ```
 
 **Usage**
