@@ -1,6 +1,6 @@
 ### AI Image Playground
 ## Overview
-This project aims to allow users to create and edit images.
+This project allows users to generate, edit, and create variant images using user prompts.
 It uses Azure Cognitive Services and Open AI's Dall-E image models.
 My goal for this project is to learn more about what AI has to offer.
 To see what this project has to offer, please use it for yourself!
@@ -8,6 +8,7 @@ To see what this project has to offer, please use it for yourself!
 ## Try it out
 
 **Env File**
+
 Create a .env file at the root of the project and copy and paste the contents of .env-example into the .env file.
 
 For the image edit functionality, you will need to create an Azure Computer Vision instance and make in account through the OpenAI website where you can obtain an api key.
@@ -64,6 +65,8 @@ Generated Image:
      - Edit a specified area of an image by providing a mask of the foreground or background
    - Image Generation API
      - Generate an image based on user prompt
+   - Image Variant API
+     - Generate variant images based on an inputed image.
 ## Plans for the future
 As this project's primary goal is to learn about AI, I plan on incorporating more AI technologies as I learn more.
 In addition to this, I would like to build a web interface using Django to allow for easy interaction with all the capabilities of this project.
